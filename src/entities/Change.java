@@ -13,6 +13,7 @@ public final class Change {
     private ArrayList<Present> newGiftList;
     private ArrayList<Child> newChildren;
     private ArrayList<ChildrenUpdates> childrenUpdates;
+    private String strategy;
 
     public Change() {
     }
@@ -87,5 +88,13 @@ public final class Change {
      */
     public ArrayList<ChildrenUpdates> getChildrenUpdates() {
         return childrenUpdates;
+    }
+
+    public String getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(final String strategy) {
+        this.strategy = strategy;
     }
 }

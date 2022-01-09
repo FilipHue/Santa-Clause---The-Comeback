@@ -13,13 +13,18 @@ public final class Child {
     private String firstName;
     private String city;
     private Integer age;
-    private ArrayList<String> giftsPreferences;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Double niceScore;
+    private ArrayList<String> giftsPreferences;
+    @JsonProperty(value = "niceScoreBonus", access = JsonProperty.Access.WRITE_ONLY)
+    private Double niceScoreBonus;
+    @JsonProperty(value = "elf", access = JsonProperty.Access.WRITE_ONLY)
+    private String elf;
     private Double averageScore = null;
     private ArrayList<Double> niceScoreHistory = new ArrayList<>();
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Double niceScoreBonusHistory;
     private Double assignedBudget;
-    @JsonIgnore
     private String type;
     private final ArrayList<Present> receivedGifts = new ArrayList<>();
 
@@ -32,6 +37,7 @@ public final class Child {
         private final ArrayList<String> giftsPreferences;
         private ArrayList<Double> niceScoreHistory = new ArrayList<>();
         private String childType;
+        private Double niceScoreBonusHistory;
 
         public Builder(final Integer id, final Integer age,
                      final String firstName, final String lastName,
@@ -76,6 +82,16 @@ public final class Child {
 
         /**
          *
+         * @param score
+         * @return
+         */
+        public Builder niceScoreBonus(final Double score) {
+            this.niceScoreBonusHistory = score;
+            return this;
+        }
+
+        /**
+         *
          * @return a new Child object
          */
         public Child build() {
@@ -95,6 +111,7 @@ public final class Child {
         this.giftsPreferences = builder.giftsPreferences;
         this.city = builder.city;
         this.type = builder.childType;
+        this.niceScoreBonusHistory = builder.niceScoreBonusHistory;
     }
 
     public void setId(final Integer id) {
@@ -191,5 +208,34 @@ public final class Child {
 
     public void setAssignedBudget(final Double assignedBudget) {
         this.assignedBudget = assignedBudget;
+    }
+
+    @JsonIgnore
+    public Double getNiceScoreBonus() {
+        return niceScoreBonus;
+    }
+
+    /**
+     *
+     * @param niceScoreBonus
+     */
+    public void setNiceScoreBonus(final Double niceScoreBonus) {
+        this.niceScoreBonus = niceScoreBonus;
+        if (this.niceScoreBonusHistory != null) {
+            this.niceScoreBonusHistory = niceScoreBonus;
+        }
+    }
+
+    @JsonIgnore
+    public String getElf() {
+        return elf;
+    }
+
+    public void setElf(final String elf) {
+        this.elf = elf;
+    }
+
+    public Double getNiceScoreBonusHistory() {
+        return niceScoreBonusHistory;
     }
 }

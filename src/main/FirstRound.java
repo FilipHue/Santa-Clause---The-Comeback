@@ -1,8 +1,8 @@
 package main;
 
+import auxiliars.NewYear;
 import common.Constants;
 import database.Database;
-import auxiliars.NewYear;
 import entities.Child;
 import entities.PapaNoel;
 
@@ -38,6 +38,14 @@ public final class FirstRound {
             }
 
             if (!child.getType().equals("Teen")) {
+                if (child.getNiceScoreBonus() != null) {
+                    child.setAverageScore(child.getAverageScore()
+                            + child.getAverageScore() * child.getNiceScoreBonus()
+                            / Constants.ONE_HUNDRED);
+                    if (child.getAverageScore() > Constants.TEN) {
+                        child.setAverageScore(Constants.TEN);
+                    }
+                }
                 sumAverageScore += child.getAverageScore();
             }
         }
@@ -46,6 +54,22 @@ public final class FirstRound {
         for (var child: database.getChildren()) {
             if (child.getAverageScore() != null) {
                 child.setAssignedBudget(budgetUnit * child.getAverageScore());
+                if (child.getElf() != null) {
+                    switch (child.getElf()) {
+                        case "yellow":
+                            continue;
+                        case "black":
+                            child.setAssignedBudget(child.getAssignedBudget()
+                                    * Constants.BLACK_MULTIPLIER);
+                            break;
+                        case "pink":
+                            child.setAssignedBudget(child.getAssignedBudget()
+                                    * Constants.PINK_MULTIPLIER);
+                            break;
+                        case "white":
+                        default:
+                    }
+                }
             }
         }
 
@@ -55,24 +79,30 @@ public final class FirstRound {
                 Double budget = child.getAssignedBudget();
                 for (var pref: child.getGiftsPreferences()) {
                     for (var present : database.getPresents()) {
-                        if (pref.equals(present.getCategory())) {
-                            preferences.putIfAbsent(present.getCategory(), 0);
-                            if (preferences.containsKey(present.getCategory())
-                                    && preferences.get(present.getCategory()) == 0) {
-                                if (budget - present.getPrice() > 0.0) {
-                                    child.getReceivedGifts().add(present);
-                                    preferences.put(present.getCategory(), 1);
-                                    budget -= present.getPrice();
-                                }
-                            } else if (preferences.containsKey(present.getCategory())
-                                    && preferences.get(present.getCategory()) == 1) {
-                                for (var gift : child.getReceivedGifts()) {
-                                    if (gift.getCategory().equals(present.getCategory())) {
-                                        if (gift.getPrice() > present.getPrice()) {
-                                            child.getReceivedGifts().set(
-                                                    child.getReceivedGifts().indexOf(gift), present
-                                            );
-                                            budget += (gift.getPrice() - present.getPrice());
+                        if (present.getQuantity() > 0) {
+                            if (pref.equals(present.getCategory())) {
+                                preferences.putIfAbsent(present.getCategory(), 0);
+                                if (preferences.containsKey(present.getCategory())
+                                        && preferences.get(present.getCategory()) == 0) {
+                                    if (budget - present.getPrice() > 0.0) {
+                                        child.getReceivedGifts().add(present);
+                                        preferences.put(present.getCategory(), 1);
+                                        budget -= present.getPrice();
+                                        present.setQuantity(present.getQuantity() - 1);
+                                    }
+                                } else if (preferences.containsKey(present.getCategory())
+                                        && preferences.get(present.getCategory()) == 1) {
+                                    for (var gift : child.getReceivedGifts()) {
+                                        if (gift.getCategory().equals(present.getCategory())) {
+                                            if (gift.getPrice() > present.getPrice()) {
+                                                child.getReceivedGifts().set(
+                                                        child.getReceivedGifts().indexOf(gift),
+                                                        present
+                                                );
+                                                budget += (gift.getPrice() - present.getPrice());
+                                                present.setQuantity(present.getQuantity() - 1);
+                                                gift.setQuantity(gift.getQuantity() + 1);
+                                            }
                                         }
                                     }
                                 }
@@ -96,6 +126,7 @@ public final class FirstRound {
                         child.getCity())
                         .niceScore(child.getNiceScore())
                         .type(child.getType())
+                        .niceScoreBonus(child.getNiceScoreBonus())
                         .build());
             }
         }

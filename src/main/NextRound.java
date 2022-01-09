@@ -39,6 +39,7 @@ public final class NextRound {
                 child.getCity())
                 .copyNiceScore(child.getNiceScoreHistory())
                 .type(child.getType())
+                .niceScoreBonus(child.getNiceScoreBonusHistory())
                 .build()));
 
         children.forEach(child -> child.setAge(child.getAge() + 1));
@@ -62,6 +63,7 @@ public final class NextRound {
                             child.getCity())
                             .niceScore(child.getNiceScore())
                             .type(child.getType())
+                            .niceScoreBonus(child.getNiceScoreBonus())
                             .build());
                 }
             }
@@ -99,10 +101,11 @@ public final class NextRound {
         }
 
         Utils.calculateScore(children, database.getSantaBudget().get(year));
-        Utils.givePresents(children, database.getPresents());
+        Utils.givePresents(children, database.getPresents(), change.getStrategy());
 
         ArrayList<Child> sortedChildren = new ArrayList<>(children);
         sortedChildren.sort(Comparator.comparing(Child::getId));
+
         NewYear newYear = new NewYear();
         newYear.getChildren().addAll(sortedChildren);
         ArrayList<Child> newList = new ArrayList<>();
@@ -116,6 +119,7 @@ public final class NextRound {
                     child.getCity())
                     .copyNiceScore(child.getNiceScoreHistory())
                     .type(child.getType())
+                    .niceScoreBonus(child.getNiceScoreBonusHistory())
                     .build());
         }
         database.getAnnualChanges().getAnnualChildren().add(newYear);

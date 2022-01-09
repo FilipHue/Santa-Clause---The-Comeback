@@ -6,6 +6,7 @@ import entities.Present;
 import org.json.simple.JSONArray;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,6 +82,12 @@ public final class Utils {
                 default -> {
                 }
             }
+            if (child.getNiceScoreBonus() != null) {
+                averageScore = (averageScore * child.getNiceScoreBonus()) / Constants.ONE_HUNDRED;
+                if (averageScore > Constants.TEN) {
+                    averageScore = Constants.TEN;
+                }
+            }
             child.setAverageScore(averageScore);
             sumAverage += averageScore;
         }
@@ -97,31 +104,57 @@ public final class Utils {
      * @param presents is the list of presents to be distributed
      */
     public static void givePresents(final ArrayList<Child> children,
-                                    final ArrayList<Present> presents) {
-        for (var child: children) {
+                                    final ArrayList<Present> presents, final String strategy) {
+
+        ArrayList<Child> sortedChildren = new ArrayList<>(children);
+
+        if (strategy.equals("id")) {
+            sortedChildren.sort(Comparator.comparing(Child::getId));
+        } else if (strategy.equals("niceScore")) {
+            sortedChildren.sort(new Comparator<Child>() {
+                @Override
+                public int compare(final Child o1, final Child o2) {
+                    if (o1.getAverageScore().equals(o2.getAverageScore())) {
+                        return o1.getId().compareTo(o2.getId());
+                    } else {
+                        return o2.getAverageScore().compareTo(o1.getAverageScore());
+                    }
+                }
+            });
+        } else if (strategy.equals("niceScoreCity")) {
+            givePresentsAfterCity(children, presents);
+        }
+
+        for (var child: sortedChildren) {
             Map<String, Integer> preferences = new HashMap<>();
             if (!child.getType().equals("Teen")) {
                 Double budget = child.getAssignedBudget();
                 for (var pref: child.getGiftsPreferences()) {
                     for (var present : presents) {
-                        if (pref.equals(present.getCategory())) {
-                            preferences.putIfAbsent(present.getCategory(), 0);
-                            if (preferences.containsKey(present.getCategory())
-                                    && preferences.get(present.getCategory()) == 0) {
-                                if (budget - present.getPrice() > 0.0) {
-                                    child.getReceivedGifts().add(present);
-                                    preferences.put(present.getCategory(), 1);
-                                    budget -= present.getPrice();
-                                }
-                            } else if (preferences.containsKey(present.getCategory())
-                                    && preferences.get(present.getCategory()) == 1) {
-                                for (var gift : child.getReceivedGifts()) {
-                                    if (gift.getCategory().equals(present.getCategory())) {
-                                        if (gift.getPrice() > present.getPrice()) {
-                                            child.getReceivedGifts().set(
-                                                    child.getReceivedGifts().indexOf(gift), present
-                                            );
-                                            budget += (gift.getPrice() - present.getPrice());
+                        if (present.getQuantity() > 0) {
+                            if (pref.equals(present.getCategory())) {
+                                preferences.putIfAbsent(present.getCategory(), 0);
+                                if (preferences.containsKey(present.getCategory())
+                                        && preferences.get(present.getCategory()) == 0) {
+                                    if (budget - present.getPrice() > 0.0) {
+                                        child.getReceivedGifts().add(present);
+                                        preferences.put(present.getCategory(), 1);
+                                        budget -= present.getPrice();
+                                        present.setQuantity(present.getQuantity() - 1);
+                                    }
+                                } else if (preferences.containsKey(present.getCategory())
+                                        && preferences.get(present.getCategory()) == 1) {
+                                    for (var gift : child.getReceivedGifts()) {
+                                        if (gift.getCategory().equals(present.getCategory())) {
+                                            if (gift.getPrice() > present.getPrice()) {
+                                                child.getReceivedGifts().set(
+                                                        child.getReceivedGifts().indexOf(gift),
+                                                        present
+                                                );
+                                                budget += (gift.getPrice() - present.getPrice());
+                                                present.setQuantity(present.getQuantity() - 1);
+                                                gift.setQuantity(gift.getQuantity() + 1);
+                                            }
                                         }
                                     }
                                 }
@@ -131,5 +164,15 @@ public final class Utils {
                 }
             }
         }
+    }
+
+    /**
+     *
+     * @param children
+     * @param presents
+     */
+    public static void givePresentsAfterCity(final ArrayList<Child> children,
+                                             final ArrayList<Present> presents) {
+
     }
 }

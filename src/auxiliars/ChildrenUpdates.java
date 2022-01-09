@@ -7,6 +7,7 @@ public final class ChildrenUpdates {
     private Integer id;
     private Double niceScore;
     private ArrayList<String> giftsPreferences;
+    private String elf;
 
     public ChildrenUpdates() {
     }
@@ -40,5 +41,13 @@ public final class ChildrenUpdates {
 
     public ArrayList<String> getGiftPreferences() {
         return giftsPreferences;
+    }
+
+    public String getElf() {
+        return elf;
+    }
+
+    public void setElf(final String elf) {
+        this.elf = elf;
     }
 }
