@@ -157,7 +157,6 @@ public final class Utils {
         for (Child child: sortedChildren) {
             if (child.getElfHistory().get(child.getElfHistory().size() - 1).equals("yellow")
                     && child.getReceivedGifts().isEmpty()) {
-                System.out.println(child.getId());
                 for (String pref: child.getGiftsPreferences()) {
                     Present newGift = new Present();
                     for (Present present: presents) {
