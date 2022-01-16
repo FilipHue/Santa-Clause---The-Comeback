@@ -91,12 +91,18 @@
     (aceasta este un deep-copy a listei mosului; ma folosesc de builder-ul din Child)
 
         Alte mentionari ar fi: 
-    1. Pachetul **utils**, ce contine clasa utils, cu metodele convertJSONArray (converteste un
-       enum in string), getType (determina tipul copilului), calculateScore (calculeaza scorul din anul respectiv pentru
-       fiecare copil si asigneaza bugetul) si givePresents (ce imparte cadourile fiecarui copil) 
+    1. Pachetul **utils**, ce contine:
+        -> clasa utils, cu metodele getType (determina tipul copilului),
+            calculateScore (calculeaza scorul din anul respectiv pentru fiecare copil si asigneaza bugetul),
+            givePresents (ce imparte cadourile fiecarui copil)
+        -> clasele StrategyId, StrategyNiceScore si StrategyNiceScoreCity reprezinta strateiile de asignare ale
+            cadourilor
+        -> clasa StrategyContext si interfata Strategy sunt folosite pentru a implementa strategy pattern
     2. Clasa ChildrenUpdate, din pachetul **auxiliars**, ce reprezinta schimbarile din fiecare an pentru copii, daca
        au loc
-    3. Clasa Test, din pachetul **main**, ce ma ajuta pentru a rula un singur test, dat ca parametru.
+    3. Clasa InputParser, ce este folosita pentru a citi datele initiale, din fiecare test
+    4. Clasa InitialData, ce este utilizata pentru citirea cu objectMapper
+    5. Clasa Test, din pachetul **main**, ce ma ajuta pentru a rula un singur test, dat ca parametru.
 
         Nu o sa intru in detalii legate de algoritmii de calculare a scorului, a bugetului asignat si a impartirii
     cadourilor deoarece am urmat pasii explicati in enuntul problemei, asa ca nu mai este nimic de zis legat de
