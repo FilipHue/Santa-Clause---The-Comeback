@@ -20,6 +20,8 @@ public final class Child {
     private Double niceScoreBonus;
     @JsonProperty(value = "elf", access = JsonProperty.Access.WRITE_ONLY)
     private String elf;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private ArrayList<String> elfHistory = new ArrayList<>();
     private Double averageScore = null;
     private ArrayList<Double> niceScoreHistory = new ArrayList<>();
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -38,6 +40,7 @@ public final class Child {
         private ArrayList<Double> niceScoreHistory = new ArrayList<>();
         private String childType;
         private Double niceScoreBonusHistory;
+        private ArrayList<String> elfHistory = new ArrayList<>();
 
         public Builder(final Integer id, final Integer age,
                      final String firstName, final String lastName,
@@ -92,6 +95,26 @@ public final class Child {
 
         /**
          *
+         * @param elf
+         * @return
+         */
+        public Builder elfHistory(final String elf) {
+            this.elfHistory.add(elf);
+            return this;
+        }
+
+        /**
+         *
+         * @param elf
+         * @return
+         */
+        public Builder copyElfHistory(final ArrayList<String> elf) {
+            this.elfHistory = new ArrayList<>(elf);
+            return this;
+        }
+
+        /**
+         *
          * @return a new Child object
          */
         public Child build() {
@@ -112,6 +135,7 @@ public final class Child {
         this.city = builder.city;
         this.type = builder.childType;
         this.niceScoreBonusHistory = builder.niceScoreBonusHistory;
+        this.elfHistory = builder.elfHistory;
     }
 
     public void setId(final Integer id) {
@@ -231,8 +255,19 @@ public final class Child {
         return elf;
     }
 
+    public ArrayList<String> getElfHistory() {
+        return elfHistory;
+    }
+
+    /**
+     *
+     * @param elf
+     */
     public void setElf(final String elf) {
         this.elf = elf;
+        if (this.elfHistory != null) {
+            this.elfHistory.add(elf);
+        }
     }
 
     public Double getNiceScoreBonusHistory() {

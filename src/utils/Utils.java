@@ -8,6 +8,7 @@ import org.json.simple.JSONArray;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class Utils {
@@ -82,8 +83,9 @@ public final class Utils {
                 default -> {
                 }
             }
-            if (child.getNiceScoreBonus() != null) {
-                averageScore = (averageScore * child.getNiceScoreBonus()) / Constants.ONE_HUNDRED;
+            if (child.getNiceScoreBonusHistory() != null) {
+                averageScore += (averageScore * child.getNiceScoreBonusHistory())
+                        / Constants.ONE_HUNDRED;
                 if (averageScore > Constants.TEN) {
                     averageScore = Constants.TEN;
                 }
@@ -95,6 +97,14 @@ public final class Utils {
         Double newBudgetUnit = newBudget / sumAverage;
         for (var child : children) {
             child.setAssignedBudget(newBudgetUnit * child.getAverageScore());
+            if (child.getElfHistory().get(child.getElfHistory().size() - 1).equals("pink")) {
+                child.setAssignedBudget(child.getAssignedBudget()
+                        + Constants.THIRTY * child.getAssignedBudget() / Constants.ONE_HUNDRED);
+            } else if (child.getElfHistory().get(child.getElfHistory().size() - 1)
+                    .equals("black")) {
+                child.setAssignedBudget(child.getAssignedBudget()
+                        - Constants.THIRTY * child.getAssignedBudget() / Constants.ONE_HUNDRED);
+            }
         }
     }
 
@@ -108,21 +118,24 @@ public final class Utils {
 
         ArrayList<Child> sortedChildren = new ArrayList<>(children);
 
-        if (strategy.equals("id")) {
-            sortedChildren.sort(Comparator.comparing(Child::getId));
-        } else if (strategy.equals("niceScore")) {
-            sortedChildren.sort(new Comparator<Child>() {
-                @Override
-                public int compare(final Child o1, final Child o2) {
+        switch (strategy) {
+            case "id" -> {
+                sortedChildren.sort(Comparator.comparing(Child::getId));
+            }
+            case "niceScore" -> {
+                sortedChildren.sort((o1, o2) -> {
                     if (o1.getAverageScore().equals(o2.getAverageScore())) {
                         return o1.getId().compareTo(o2.getId());
                     } else {
                         return o2.getAverageScore().compareTo(o1.getAverageScore());
                     }
-                }
-            });
-        } else if (strategy.equals("niceScoreCity")) {
-            givePresentsAfterCity(children, presents);
+                });
+            }
+            case "niceScoreCity" -> {
+                sortedChildren = givePresentsAfterCity(children);
+            }
+            default -> {
+            }
         }
 
         for (var child: sortedChildren) {
@@ -164,15 +177,79 @@ public final class Utils {
                 }
             }
         }
+
+        for (Child child: sortedChildren) {
+            if (child.getElfHistory().get(child.getElfHistory().size() - 1).equals("yellow")
+                    && child.getReceivedGifts().isEmpty()) {
+                System.out.println(child.getId());
+                for (String pref: child.getGiftsPreferences()) {
+                    Present newGift = new Present();
+                    for (Present present: presents) {
+                        if (present.getCategory().equals(pref)) {
+                            if (newGift.getPrice() == null) {
+                                newGift = present;
+                            } else if (newGift.getPrice() > present.getPrice()) {
+                                newGift = present;
+                            }
+                        }
+                    }
+                    if (newGift.getPrice() != null && newGift.getQuantity() > 0) {
+                        newGift.setQuantity(newGift.getQuantity() - 1);
+                        child.getReceivedGifts().add(newGift);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     /**
      *
      * @param children
-     * @param presents
      */
-    public static void givePresentsAfterCity(final ArrayList<Child> children,
-                                             final ArrayList<Present> presents) {
+    public static ArrayList<Child> givePresentsAfterCity(final ArrayList<Child> children) {
+        Map<String, ArrayList<Double>> citiesByAverageScore = new HashMap<>();
+        Map<String, Double> finalCitiesByAverageScore = new HashMap<>();
 
+        for (Child child: children) {
+            citiesByAverageScore.putIfAbsent(child.getCity(), new ArrayList<>());
+            if (citiesByAverageScore.containsKey(child.getCity())) {
+                citiesByAverageScore.get(child.getCity()).add(child.getAverageScore());
+            }
+        }
+
+        for (Map.Entry<String, ArrayList<Double>> entry: citiesByAverageScore.entrySet()) {
+            Double scoreCity = 0.0;
+            for (var score: entry.getValue()) {
+                scoreCity += score;
+            }
+            scoreCity /= entry.getValue().size();
+            finalCitiesByAverageScore.putIfAbsent(entry.getKey(), scoreCity);
+        }
+
+
+        List<Map.Entry<String, Double>> list = new ArrayList<>(
+                finalCitiesByAverageScore.entrySet()
+        );
+        list.sort((o1, o2) -> {
+            if (o2.getValue().equals(o1.getValue())) {
+                return o1.getKey().compareTo(o2.getKey());
+            } else {
+                return o2.getValue().compareTo(o1.getValue());
+            }
+        });
+
+        ArrayList<Child> newChildrenList = new ArrayList<>();
+        for (Map.Entry<String, Double> city: list) {
+            ArrayList<Child> newList = new ArrayList<>();
+            for (Child child: children) {
+                if (child.getCity().equals(city.getKey())) {
+                    newList.add(child);
+                }
+            }
+            newList.sort(Comparator.comparing(Child::getId));
+            newChildrenList.addAll(newList);
+        }
+        return newChildrenList;
     }
 }

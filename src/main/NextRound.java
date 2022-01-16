@@ -9,7 +9,6 @@ import entities.PapaNoel;
 import utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.stream.Collectors;
 
 public final class NextRound {
@@ -40,6 +39,7 @@ public final class NextRound {
                 .copyNiceScore(child.getNiceScoreHistory())
                 .type(child.getType())
                 .niceScoreBonus(child.getNiceScoreBonusHistory())
+                .copyElfHistory(child.getElfHistory())
                 .build()));
 
         children.forEach(child -> child.setAge(child.getAge() + 1));
@@ -64,6 +64,7 @@ public final class NextRound {
                             .niceScore(child.getNiceScore())
                             .type(child.getType())
                             .niceScoreBonus(child.getNiceScoreBonus())
+                            .elfHistory(child.getElf())
                             .build());
                 }
             }
@@ -95,6 +96,9 @@ public final class NextRound {
                                 child.setGiftsPreferences(newPreferences);
                             }
                         }
+                        if (update.getElf() != null) {
+                            child.getElfHistory().add(update.getElf());
+                        }
                     }
                 }
             }
@@ -104,7 +108,6 @@ public final class NextRound {
         Utils.givePresents(children, database.getPresents(), change.getStrategy());
 
         ArrayList<Child> sortedChildren = new ArrayList<>(children);
-        sortedChildren.sort(Comparator.comparing(Child::getId));
 
         NewYear newYear = new NewYear();
         newYear.getChildren().addAll(sortedChildren);
@@ -120,6 +123,7 @@ public final class NextRound {
                     .copyNiceScore(child.getNiceScoreHistory())
                     .type(child.getType())
                     .niceScoreBonus(child.getNiceScoreBonusHistory())
+                    .copyElfHistory(child.getElfHistory())
                     .build());
         }
         database.getAnnualChanges().getAnnualChildren().add(newYear);

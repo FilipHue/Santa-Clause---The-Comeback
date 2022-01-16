@@ -60,11 +60,13 @@ public final class FirstRound {
                             continue;
                         case "black":
                             child.setAssignedBudget(child.getAssignedBudget()
-                                    * Constants.BLACK_MULTIPLIER);
+                                    - child.getAssignedBudget()
+                                    * Constants.THIRTY / Constants.ONE_HUNDRED);
                             break;
                         case "pink":
                             child.setAssignedBudget(child.getAssignedBudget()
-                                    * Constants.PINK_MULTIPLIER);
+                                    + child.getAssignedBudget()
+                                    * Constants.THIRTY / Constants.ONE_HUNDRED);
                             break;
                         case "white":
                         default:
@@ -127,6 +129,7 @@ public final class FirstRound {
                         .niceScore(child.getNiceScore())
                         .type(child.getType())
                         .niceScoreBonus(child.getNiceScoreBonus())
+                        .elfHistory(child.getElf())
                         .build());
             }
         }
