@@ -19,18 +19,18 @@
 |- - - - - - > |  santaBudget  |                                Child
 |              +- - - - - - - -+                            |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 |                                                           |                                                                                          |
-|                                                           |                               +- - - - - - - - - - - - - - -+                            |
-|                                                           |                               |id, lastName, firstName,     |                            |
-|  ArrayList   +- - - - - - - -+            Child           +- - - - - - - -+               |city, age, giftsPreferences, |                            |
-|- - - - - - > |    children   | < - - - - - - - - - - - - -|     Child     |- - - - - - - >|averageScore, assignedBudget,|                            |
-|              +- - - - - - - -+                            +- - - - - - - -+               |niceScoreHistory, type,      |                            |
-|                                                     Child |                               |receivedGifts                |                            |
-|                                                   | - - - |                               +- - - - - - - - - - - - - - -+                            |
-|                                                   |                                       +- - - - - - -+                                            |
-|  ArrayList   +- - - - - - - -+           Present  |       +- - - - - - - -+               |productName, |                                            |
-|- - - - - - > |    presents   | < - - - - - - - - -|- - - -|     Present   |- - - - - - - >|price,       |                                            |
-|              +- - - - - - - -+                    |       +- - - - - - - -+               |category     |                                            |
-|                                                   |       |                                +- - - - - - -+            Present                        |
+|                                                           |                               +- - - - - - - - - - - - - - - - - -+                      |
+|                                                           |                               |id, lastName, firstName,           |                      |
+|  ArrayList   +- - - - - - - -+            Child           +- - - - - - - -+               |city, age, giftsPreferences,       |                      |
+|- - - - - - > |    children   | < - - - - - - - - - - - - -|     Child     |- - - - - - - >|averageScore, assignedBudget,      |                      |
+|              +- - - - - - - -+                            +- - - - - - - -+               |niceScoreHistory, type,            |                      |
+|                                                     Child |                               |receivedGifts, elf, niceScoreBonus |                      |
+|                                                   | - - - |                               +- - - - - - - - - - - - - - - - - -+                      |
+|                                                   |                                       +- - - - - - - - - -+                                      |
+|  ArrayList   +- - - - - - - -+           Present  |       +- - - - - - - -+               |productName,       |                                      |
+|- - - - - - > |    presents   | < - - - - - - - - -|- - - -|     Present   |- - - - - - - >|price,             |                                      |
+|              +- - - - - - - -+                    |       +- - - - - - - -+               |category, quantity |                                      |
+|                                                   |       |                               +- - - - - - - - - -+      Present                         |
 |                                                   |       | - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|         |
 |                                                   |                                                                                        |         |
 |  ArrayList   +- - - - - - - -+            Change  |       +- - - - - - - -+                                                                |         |
@@ -57,14 +57,14 @@
 
         In pachetul **entities** sunt puse clasele principale ale programului, anume: Child (ce reprezinta copii; aici am
     folosit un builder pattern), Present (ce reprezinta cadourile), Change (ce reprezinta o lista cu schimbarile ce
-    vor avea loc in anul respectiv), AnnualChanges (contine o lista cu copii carora l-i s-au dat cadouri in toti anii),
-    si PapaNoel (ce cuprinde o lista cu copii sub 19 ani din anul respectiv).
+    vor avea loc in anul respectiv), AnnualChanges (contine o lista cu copii carora li s-au dat cadouri in toti anii),
+    si PapaNoel (ce cuprinde o lista cu copii sub 19 ani din anul respectiv, adica lista mosului).
     
         In clasa main (din pachetul **main**) este apelata metoda action, ce realizeaza urmatorele lucruri:
     1. Citeste din fisierul dat ca input (filePath1) datele initiale si creeaza baza de date
     2. Initializeaza lista mosului prin metoda initSetup, din clasa FirstRound
     3. Itereaza prin fiecare an si apeleaza metoda playRound, din clasa NextRound, pentru anul respectiv
-    4. Scrie, folosind un ObjectMapper, in fisierul de output rezultatul final(filePath2)
+    4. Scrie, folosind un ObjectMapper, in fisierul de output(filePath2) rezultatul final
     5. Sterge baza de date pentru a putea fi repopulata la testul urmator (sunt nevoit sa fac asta din cauza
        implementarii alese, altfel imi va memora toti copii, de la toate testele)
 

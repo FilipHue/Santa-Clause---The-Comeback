@@ -3,35 +3,14 @@ package utils;
 import common.Constants;
 import entities.Child;
 import entities.Present;
-import org.json.simple.JSONArray;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public final class Utils {
 
     private Utils() {
-    }
-
-    /**
-     *
-     * @param array of JSONs
-     * @return a list of Strings
-     */
-
-    public static ArrayList<String> convertJSONArray(final JSONArray array) {
-        if (array != null) {
-            ArrayList<String> finalArray = new ArrayList<>();
-            for (Object object: array) {
-                finalArray.add((String) object);
-            }
-            return finalArray;
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -120,19 +99,16 @@ public final class Utils {
 
         switch (strategy) {
             case "id" -> {
-                sortedChildren.sort(Comparator.comparing(Child::getId));
+                StrategyContext context = new StrategyContext(new StrategyId());
+                sortedChildren = context.executeStrategy(children);
             }
             case "niceScore" -> {
-                sortedChildren.sort((o1, o2) -> {
-                    if (o1.getAverageScore().equals(o2.getAverageScore())) {
-                        return o1.getId().compareTo(o2.getId());
-                    } else {
-                        return o2.getAverageScore().compareTo(o1.getAverageScore());
-                    }
-                });
+                StrategyContext context = new StrategyContext(new StrategyNiceScore());
+                sortedChildren = context.executeStrategy(children);
             }
             case "niceScoreCity" -> {
-                sortedChildren = givePresentsAfterCity(children);
+                StrategyContext context = new StrategyContext(new StrategyNiceScoreCity());
+                sortedChildren = context.executeStrategy(children);
             }
             default -> {
             }
@@ -201,55 +177,5 @@ public final class Utils {
                 }
             }
         }
-    }
-
-    /**
-     *
-     * @param children
-     */
-    public static ArrayList<Child> givePresentsAfterCity(final ArrayList<Child> children) {
-        Map<String, ArrayList<Double>> citiesByAverageScore = new HashMap<>();
-        Map<String, Double> finalCitiesByAverageScore = new HashMap<>();
-
-        for (Child child: children) {
-            citiesByAverageScore.putIfAbsent(child.getCity(), new ArrayList<>());
-            if (citiesByAverageScore.containsKey(child.getCity())) {
-                citiesByAverageScore.get(child.getCity()).add(child.getAverageScore());
-            }
-        }
-
-        for (Map.Entry<String, ArrayList<Double>> entry: citiesByAverageScore.entrySet()) {
-            Double scoreCity = 0.0;
-            for (var score: entry.getValue()) {
-                scoreCity += score;
-            }
-            scoreCity /= entry.getValue().size();
-            finalCitiesByAverageScore.putIfAbsent(entry.getKey(), scoreCity);
-        }
-
-
-        List<Map.Entry<String, Double>> list = new ArrayList<>(
-                finalCitiesByAverageScore.entrySet()
-        );
-        list.sort((o1, o2) -> {
-            if (o2.getValue().equals(o1.getValue())) {
-                return o1.getKey().compareTo(o2.getKey());
-            } else {
-                return o2.getValue().compareTo(o1.getValue());
-            }
-        });
-
-        ArrayList<Child> newChildrenList = new ArrayList<>();
-        for (Map.Entry<String, Double> city: list) {
-            ArrayList<Child> newList = new ArrayList<>();
-            for (Child child: children) {
-                if (child.getCity().equals(city.getKey())) {
-                    newList.add(child);
-                }
-            }
-            newList.sort(Comparator.comparing(Child::getId));
-            newChildrenList.addAll(newList);
-        }
-        return newChildrenList;
     }
 }
